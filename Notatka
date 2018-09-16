@@ -1,0 +1,121 @@
+**Komendy**
+-> ng serve -o : streamowanie apki w przeglądarce w czasie rzeczywistym
+-> ng generate component *nazwa_komponenetu* lub
+	ng g c *nazwa_komponentu*
+-> ng generate service *nazwa_serwisu*
+
+
+** app.module.ts **
+Miejsce odpowiedzialne za deklarowanie serwisów i komponentów, jak i również 
+deklarowanie z jakich funkcjonalności Angulara chcemy korzystać (importów)
+Jeżeli nowe komponenety i serwisy będziemy dodawać za pomocą CLI, dodanie ich 
+definicji do tego pliku będzie automatyczne.
+
+** app.component **
+Tutaj deklarujemy za pomocą htmla jak ma wyglądać nasza single page app.
+Można deklarować jakie komponenty mają być wyświetlane w sposób bezpośredni
+np. za pomocą <app-sidebar> <- czyli nazwy znajdującej się w dekoratorze 
+danego komponentu w polu 'selector'
+lub można zadeklarować, aby w divie pojawiła się zawartość zwrócona przez routing.
+<router-outlet></router-outlet>
+Czyli w sumie te komponenty to są takie UserControle z WPF'a
+
+Tutaj też automatycznie zostało wygenerowane, że ten komponent nazywa się 
+'app-root' i w głównym pliku html (index.html) jest deklaracja, że w miejscu 
+<body></body> zostaje wrzucony ten komponent
+
+**HTML**
+-> 'a' tak jak normalnie to było hiperłączę ('href') to również jest to użyteczne
+do działania routingu, i w tym wypadku definiujemy atrybut 'routerLink' wskazujący
+na ścieżkę routingu. Raczej musi być jedna domyślna, pusta.
+-> 'i' - tekst napisany kursywą, jednak w wypadku korzystania z material designu
+można go użyć do wykorzystania z ikon
+<i class="material-icons">*nazwa_ikonki*</i> gdzie np *nazwa_ikonki* = message
+-> <nav> - tag defines a set of navigation links.
+
+**import material-designu**
+dodanie odpowiednich <link>'ów w pliku index.html
+*ikony
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+*font
+<link href="https://fonts.googleapis.com/css?family=Montserrat:300,700" rel="stylesheet">
+
+** src/styles.(s)css **
+określenie stylów na cała aplikację
+
+** deklaracja routingu **
+plik src/app-routing.module.ts:
+Po pierwsze należy zaimportować jakich komponentów będziemy używać jako efekt kolejnych
+ścieżek. 
+np 
+import { UsersComponent } from './users/users.component';
+i potem w deklaracji array'a routers: Routes = [
+	{
+		path: '',
+		component: UserComponent
+	},
+]
+czyli dla ścieżki pustej zostanie wyświetlony komponent z miejsca './users/users.component'
+
+jeżeli jakaś ścieżka ma być uruchamiana z parametrem, deklaruje się to za pomocą 
+	path: 'nazwa_ścieżki/:nazwa_parametru'
+np
+	path: 'details/:id' - ścieżka details, z parametrem 'id'
+
+** Deklarowanie serwisów **
+ng generate service *nazwa*
+serwisy zostają dodane bazowo w folderu /src
+
+w serwisie chcemy móc używać httpowego clienta, który jest domyślnie 
+dostępny w Angularze, jednak trzeba go zaimportować. I tutaj jest myk, że 
+jest użyty DependencyInjection na tego HttpClienta i nie bardzo wiem czemu.
+Jest jeszcze poszlaka, że jest on potrzebny również importowany w app.module.ts, to może
+na początek jest inicjalizacja go w tym jednym miejscu i w razie jakby byłow więcej 
+serwisów, to wszędzie będzie wstrzykiwa ta sama instancja(?)
+
+W sumie to żeby korzystać z seriwsu z komponentu, w pliku *.component.ts też należy 
+dodać import do danego seriwsu, i też skorzystać z DependencyInjection.
+
+Dobra, tu jest napisane że ta składnia 
+constructor(private *nazwa_zmiennej*: *nazwa_zaimportowanej_biblioteki*){}
+powoduje inicjalizacje tego obiektu przy inicjalizacji danego komponentu / serwisu, więc
+nie jest on przekazywany z innego obiektu, to git.
+Potem zmienna o danej nazwie jest dostępna w całej instancji klasy.
+
+Jeżeli chcemy mieć metode w serwisie pobierającą jakiś argument po prostu
+wpisujemy jego nazwę, nie trzeba go typować
+
+** Korzystanie z serwisu z komponentu **
+metoda 'ngOnInit()' w komponentach jest równoznaczna z OnLoad WPF'owym
+Najprostsze przypisanie (zbindowanie) danych jest za pomocą właśnie tej funkcji subscribe.
+
+Pisząc 
+  ngOnInit() {
+    this.dataService.getUsers().subscribe(
+      data => this.users$ = data
+    )
+  }
+Piszemy, że za każdym razem OnLoad, wywołujemy funkcję z naszej instancji DataService o nazwie 
+dataService (zainicjowanej w kontruktorze), i jej wynik (obiekt data) przypisujemy do 
+zmiennej o nazwie 'users$'
+
+**literowanie listy w kodzie html'a oraz odwoływanie się do pół / zmiennych**
+  <li *ngFor="let user of users$">
+    <a routerLink="/details/{{user.id}}">{{ user.name }}</a>
+
+    <ul>
+      <li>{{ user.email }}</li>
+      <li><a href="http://{{ user.website }}">{{ user.website }}</a></li>
+    </ul>
+  </li>
+
+*będzie tyle obiektów <li> ile jest userów w usersach
+czyli to jest coś pokroju 
+foreach(var user in users){
+}
+
+
+
+
+
+
